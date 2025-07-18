@@ -289,14 +289,11 @@ def index():
             if X_processed is None:
                 raise ValueError("Error processing input data")
             
-            # Make prediction with XGBoost 2.1.4 compatibility
             try:
                 prediction_probability = loaded_model.predict_proba(X_processed)[:, 1][0]
-                print("Prediction done, rendering result.", file=sys.stderr, flush=True)
-        except Exception as e:
-            print("POST error:", e, file=sys.stderr, flush=True)
-            # Optionally flash an error message
-            return render_template("index.html", error=str(e))
+            except Exception as pred_error:
+                # Alternative prediction method for XGBoost 2.1.4
+                prediction_probability = loaded_model.predict_proba(X_processed.values)[:, 1][0]
             
             final_prediction = (prediction_probability >= loaded_threshold).astype(int)
             prediction_text = "Successful" if final_prediction == 1 else "Failed"
