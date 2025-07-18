@@ -6,9 +6,5 @@ product_launch_env/
 __pycache__/
 *.pyc
 
-# OS or editor files
-.DS_Store
-*.log
-
 # Environment files
 .env
