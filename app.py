@@ -29,6 +29,9 @@ loaded_all_years = None
 loaded_all_months = None
 loaded_train_columns = None
 
+print("Current working directory:", os.getcwd())
+print("Files in current directory:", os.listdir())
+
 # Load ML assets with XGBoost 2.1.4 compatibility
 def load_ml_assets():
     global loaded_model, loaded_threshold, loaded_all_years, loaded_all_months, loaded_train_columns
