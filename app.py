@@ -345,7 +345,7 @@ if __name__ == '__main__':
     if not success:
         print("Failed to load ML assets. Please check that all .pkl files are present.")
     
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=False)  # debug=False for production
 
 
