@@ -12,12 +12,15 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+# Get base directory of the app
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Define paths to your .pkl files
-MODEL_FILE = 'xgb_product_launch_predictor.pkl'
-THRESHOLD_FILE = 'xgb_product_launch_threshold.pkl'
-ALL_YEARS_FILE = 'all_years.pkl'
-ALL_MONTHS_FILE = 'all_months.pkl'
-TRAIN_COLS_FILE = 'train_columns.pkl'
+MODEL_FILE = os.path.join(BASE_DIR, 'xgb_product_launch_predictor.pkl')
+THRESHOLD_FILE = os.path.join(BASE_DIR, 'xgb_product_launch_threshold.pkl')
+ALL_YEARS_FILE = os.path.join(BASE_DIR, 'all_years.pkl')
+ALL_MONTHS_FILE = os.path.join(BASE_DIR, 'all_months.pkl')
+TRAIN_COLS_FILE = os.path.join(BASE_DIR, 'train_columns.pkl')
 
 # Global variables for ML assets
 loaded_model = None
@@ -32,36 +35,23 @@ def load_ml_assets():
     
     try:
         print("Loading ML assets...")
-        
-        # Check if files exist
         required_files = [MODEL_FILE, THRESHOLD_FILE, ALL_YEARS_FILE, ALL_MONTHS_FILE, TRAIN_COLS_FILE]
         for file_path in required_files:
             if not os.path.exists(file_path):
                 print(f"Error: {file_path} not found!")
                 return False
         
-        # Load model with XGBoost 2.1.4 compatibility
-        try:
-            with open(MODEL_FILE, 'rb') as f:
-                loaded_model = pickle.load(f)
-            
-            # XGBoost 2.1.4 compatibility fixes
-            if hasattr(loaded_model, 'use_label_encoder'):
-                loaded_model.use_label_encoder = False
-            if hasattr(loaded_model, 'eval_metric') and loaded_model.eval_metric is None:
-                loaded_model.eval_metric = 'logloss'
-                
-        except Exception as model_error:
-            print(f"Model loading error: {model_error}")
-            # Try alternative loading method
-            loaded_model = xgb.XGBClassifier()
-            loaded_model.load_model(MODEL_FILE.replace('.pkl', '.json'))
+        with open(MODEL_FILE, 'rb') as f:
+            loaded_model = pickle.load(f)
         
-        # Load threshold
+        # Compatibility with XGBoost 2.1.4
+        if hasattr(loaded_model, 'use_label_encoder'):
+            loaded_model.use_label_encoder = False
+        if hasattr(loaded_model, 'eval_metric') and loaded_model.eval_metric is None:
+            loaded_model.eval_metric = 'logloss'
+        
         with open(THRESHOLD_FILE, 'rb') as f:
             loaded_threshold = pickle.load(f)
-        
-        # Load supporting files
         with open(ALL_YEARS_FILE, 'rb') as f:
             loaded_all_years = pickle.load(f)
         with open(ALL_MONTHS_FILE, 'rb') as f:
@@ -71,7 +61,7 @@ def load_ml_assets():
         
         print("ML assets loaded successfully!")
         return True
-        
+    
     except Exception as e:
         print(f"Error loading ML assets: {e}")
         return False
